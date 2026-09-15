@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prezența grupei · Activități interactive</title>
+  <script>try{const m=localStorage.getItem('atelier.mode')||(localStorage.getItem('atelier.theme')==='dark'?'dark':'light');const p=localStorage.getItem('atelier.palette')||((localStorage.getItem('atelier.theme')||'sage')==='dark'?'sage':localStorage.getItem('atelier.theme')||'sage');document.documentElement.dataset.mode=m;document.documentElement.dataset.palette=p;document.documentElement.dataset.theme=m==='dark'?'dark':p==='sage'?'light':p;document.documentElement.lang=localStorage.getItem('atelier.language')||'ro'}catch{}</script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2048%2048%22%20width%3D%2242%22%20height%3D%2242%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%2248%22%20height%3D%2248%22%20rx%3D%2215%22%20fill%3D%22%23e9eee2%22%2F%3E%3Cpath%20d%3D%22M9%2012c6-1%2010%201%2014%205v21c-4-4-8-5-14-4V12Z%22%20fill%3D%22%23276250%22%2F%3E%3Cpath%20d%3D%22M26%2017c4-4%208-6%2014-5v22c-6-1-10%200-14%204V17Z%22%20fill%3D%22%23e29b76%22%2F%3E%3Cpath%20d%3D%22M14%2020c2%200%203%201%205%202m-5%204%205%202m12-6%204-2m-4%208%204-2%22%20stroke%3D%22%23fffaf2%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="prezenta.css" />
+  <link rel="stylesheet" href="account.css" />
+</head>
+<body>
+  <header class="site-header"><a class="brand" href="/"><svg viewBox="0 0 48 48" width="42" height="42" fill="none" aria-hidden="true"><rect width="48" height="48" rx="15" fill="#e9eee2"/><path d="M9 12c6-1 10 1 14 5v21c-4-4-8-5-14-4V12Z" fill="#276250"/><path d="M26 17c4-4 8-6 14-5v22c-6-1-10 0-14 4V17Z" fill="#e29b76"/><path d="M14 20c2 0 3 1 5 2m-5 4 5 2m12-6 4-2m-4 8 4-2" stroke="#fffaf2" stroke-width="2" stroke-linecap="round"/></svg>Activități interactive</a><a href="/">← Înapoi la atelier</a><div class="account-header"><span class="account-status" data-storage-status>Se încarcă…</span><button type="button" class="account-trigger" data-account-open>Intră în cont</button></div></header>
+  <div id="account-sync-notice" class="account-sync-notice" role="status" hidden><span></span><button type="button" data-account-open>Deschide contul</button></div>
+  <main class="section-wrap attendance">
+    <div class="section-heading"><div><p class="eyebrow">Un bun venit pentru fiecare copil</p><h1>Uite cine a venit! <span class="attendance-title-mark" aria-hidden="true"><span></span></span></h1><p>Fiecare copil își găsește numele și apasă „Am ajuns!”.</p></div></div>
+    <p id="attendance-message" role="status" aria-live="polite"></p>
+    <section id="teacher-controls" class="attendance-panel">
+      <div class="attendance-toolbar">
+        <label>Grupa sau clasa<select id="group-select" aria-label="Grupa sau clasa"></select></label>
+        <label>Simbolul grupei<select id="group-symbol" aria-label="Simbolul grupei"></select></label>
+        <label>Ziua<input id="attendance-date" type="date" required /></label>
+        <button class="button button-soft" id="new-group" type="button">+ Creează o grupă</button>
+        <button class="button button-primary" id="children-mode" type="button">Deschide pentru copii</button>
+      </div>
+      <p class="attendance-note"><span data-storage-description>Salvat în acest browser.</span> Deschide grupa pe calculator, tabletă sau tabla interactivă pentru bifarea prezenței. „Nebifat” nu înseamnă automat absent.</p>
+      <form id="group-form" hidden>
+        <h2>O grupă nouă</h2>
+        <label>Numele grupei<input id="group-name" maxlength="80" placeholder="Exemplu: Grupa Fluturașilor" required /></label>
+        <label>Alege simbolul grupei<select id="new-group-symbol"></select></label>
+        <p class="attendance-note">Același simbol pentru toate cartonașele din grupă. Îl poți schimba oricând.</p>
+        <label>Copiii — câte un nume pe rând<textarea id="group-children" rows="5" placeholder="Ana M.&#10;Matei&#10;Ana P." required></textarea></label>
+        <p class="attendance-note">Poți folosi prenume și o inițială. Pentru copiii cu același prenume, alege etichete distincte.</p>
+        <button class="button button-primary" type="submit">Salvează grupa</button>
+        <button class="button button-ghost" id="cancel-group" type="button">Anulează</button>
+      </form>
+      <form id="add-child-form" class="attendance-toolbar" hidden>
+        <label>Adaugă un copil<input id="child-name" maxlength="60" placeholder="Prenume sau prenume și inițială" required /></label>
+        <button class="button button-soft" type="submit">Adaugă în grupă</button>
+      </form>
+    </section>
+    <div id="children-toolbar" class="attendance-toolbar" hidden><p>Apasă pe cartonașul tău ca să ne spui că ai ajuns.</p><button id="teacher-mode" type="button" class="button button-soft">Înapoi la profesor</button></div>
+    <section aria-labelledby="group-title">
+      <div class="section-heading attendance-summary"><h2 id="group-title">Creează prima grupă</h2><p id="attendance-count"></p></div>
+      <div id="attendance-cards" class="attendance-grid"></div>
+    </section>
+  </main>
+  <script type="module" src="prezenta.js"></script>
+</body>
+</html>

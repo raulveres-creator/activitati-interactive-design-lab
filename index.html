@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Atelierul tău pentru lecții: creează activități interactive, adaptează modele și organizează prezența clasei." />
+  <title>Atelierul profesorului · Activități interactive</title>
+  <script>try{const m=localStorage.getItem('atelier.mode')||(localStorage.getItem('atelier.theme')==='dark'?'dark':'light');const p=localStorage.getItem('atelier.palette')||((localStorage.getItem('atelier.theme')||'sage')==='dark'?'sage':localStorage.getItem('atelier.theme')||'sage');document.documentElement.dataset.mode=m;document.documentElement.dataset.palette=p;document.documentElement.dataset.theme=m==='dark'?'dark':p==='sage'?'light':p;document.documentElement.lang=localStorage.getItem('atelier.language')||'ro'}catch{}</script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2048%2048%22%20width%3D%2242%22%20height%3D%2242%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%2248%22%20height%3D%2248%22%20rx%3D%2215%22%20fill%3D%22%23e9eee2%22%2F%3E%3Cpath%20d%3D%22M9%2012c6-1%2010%201%2014%205v21c-4-4-8-5-14-4V12Z%22%20fill%3D%22%23276250%22%2F%3E%3Cpath%20d%3D%22M26%2017c4-4%208-6%2014-5v22c-6-1-10%200-14%204V17Z%22%20fill%3D%22%23e29b76%22%2F%3E%3Cpath%20d%3D%22M14%2020c2%200%203%201%205%202m-5%204%205%202m12-6%204-2m-4%208%204-2%22%20stroke%3D%22%23fffaf2%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="atelier.css" />
+  <link rel="stylesheet" href="account.css" />
+</head>
+<body class="atelier">
+  <a class="skip-link" href="#top">Sari la conținut</a>
+  <aside class="sidebar" aria-label="Meniul atelierului">
+    <a class="brand" href="#top"><svg viewBox="0 0 48 48" width="42" height="42" fill="none" aria-hidden="true"><rect width="48" height="48" rx="15" fill="#e9eee2"/><path d="M9 12c6-1 10 1 14 5v21c-4-4-8-5-14-4V12Z" fill="#276250"/><path d="M26 17c4-4 8-6 14-5v22c-6-1-10 0-14 4V17Z" fill="#e29b76"/><path d="M14 20c2 0 3 1 5 2m-5 4 5 2m12-6 4-2m-4 8 4-2" stroke="#fffaf2" stroke-width="2" stroke-linecap="round"/></svg><span>Activități<br /><strong>interactive</strong></span></a>
+    <p class="nav-caption">ATELIERUL TĂU</p>
+    <nav class="workspace-nav" aria-label="Navigare principală">
+      <a class="nav-item active" href="#top" data-section="top"><span data-icon="home"></span><span class="nav-label">Prezentare generală</span><span class="mobile-nav-label">Acasă</span></a>
+      <a class="nav-item" href="#exploreaza" data-section="exploreaza"><span data-icon="layers"></span><span class="nav-label">Modele de activități</span><span class="mobile-nav-label">Modele</span></a>
+      <a class="nav-item" href="#activitatile-mele" data-section="activitatile-mele"><span data-icon="folder"></span><span class="nav-label">Materialele mele</span><span class="mobile-nav-label">Materiale</span><span class="nav-count" id="nav-library-count">0</span></a>
+      <a class="nav-item" href="prezenta.html"><span data-icon="people"></span><span class="nav-label">Prezența grupei</span><span class="mobile-nav-label">Prezență</span></a>
+    </nav>
+    <div class="sidebar-note"><span class="note-book" data-icon="book"></span><strong>O idee bună merită împărtășită.</strong><p>Creează o activitate și trimite linkul clasei tale.</p><button type="button" class="text-button" data-action="open-create">Începe de aici <span aria-hidden="true">→</span></button></div>
+    <div class="sidebar-foot"><span class="local-dot"></span><div>Atelier gratuit<small data-storage-description>Materiale salvate în acest browser</small></div></div>
+  </aside>
+  <div class="workspace">
+    <header class="workspace-header">
+      <span class="workspace-location">Spațiul meu <span aria-hidden="true">/</span> <strong>Atelierul profesorului</strong></span>
+      <time id="today-label"></time>
+      <div class="account-header"><span class="account-status" data-storage-status>Se încarcă…</span><button type="button" class="account-trigger" data-account-open>Intră în cont</button></div>
+      <a class="mobile-brand" href="#top"><svg viewBox="0 0 48 48" width="42" height="42" fill="none" aria-hidden="true"><rect width="48" height="48" rx="15" fill="#e9eee2"/><path d="M9 12c6-1 10 1 14 5v21c-4-4-8-5-14-4V12Z" fill="#276250"/><path d="M26 17c4-4 8-6 14-5v22c-6-1-10 0-14 4V17Z" fill="#e29b76"/><path d="M14 20c2 0 3 1 5 2m-5 4 5 2m12-6 4-2m-4 8 4-2" stroke="#fffaf2" stroke-width="2" stroke-linecap="round"/></svg>Activități interactive</a>
+    </header>
+    <div id="account-sync-notice" class="account-sync-notice" role="status" hidden><span></span><button type="button" data-account-open>Deschide contul</button></div>
+    <main id="top" class="workspace-main">
+      <div class="welcome-row"><div><p class="overline">PUȚINĂ INSPIRAȚIE. MULTE POSIBILITĂȚI.</p><h1>Ce pregătim pentru clasă?</h1><p>Ideile tale, transformate în momente de învățare.</p></div><button class="button button-primary" data-action="open-create"><span data-icon="plus"></span>Activitate nouă</button></div>
+
+      <div class="feature-grid">
+        <section class="studio-banner" aria-labelledby="banner-title">
+          <div class="banner-copy"><span class="banner-label">DIN IDEE, ÎN LECȚIE</span><h2 id="banner-title">Lecții cu mai mult<br /><em>„Aha!”</em></h2><p>Pornește de la un model.<br />Adaugă ce vrei să descopere copiii.</p><a class="button button-ink" href="#exploreaza">Găsește inspirație <span aria-hidden="true">↗</span></a></div>
+          <div class="banner-art" id="banner-art" aria-hidden="true"></div>
+          <span class="banner-caption">Curiozitatea se învață prin joacă.</span>
+        </section>
+        <section class="arrival-widget" aria-labelledby="arrival-heading">
+          <div class="widget-kicker"><span data-icon="people"></span>RITUALUL DE DIMINEAȚĂ</div>
+          <div class="arrival-flower" aria-hidden="true"><svg viewBox="0 0 120 100"><g fill="#e9b798"><ellipse cx="60" cy="25" rx="14" ry="21"/><ellipse cx="38" cy="40" rx="14" ry="21" transform="rotate(-60 38 40)"/><ellipse cx="82" cy="40" rx="14" ry="21" transform="rotate(60 82 40)"/><ellipse cx="45" cy="65" rx="14" ry="21" transform="rotate(35 45 65)"/><ellipse cx="76" cy="65" rx="14" ry="21" transform="rotate(-35 76 65)"/></g><circle cx="60" cy="47" r="16" fill="#f8e3a5"/><path d="M53 50q7 7 14 0" fill="none" stroke="#846238" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <h2 id="arrival-heading">Uite cine a venit!</h2><p id="arrival-summary">Un bun venit pentru fiecare copil.</p><a class="button button-soft" href="prezenta.html">Deschide prezența <span aria-hidden="true">→</span></a>
+          <span class="widget-note">Același simbol pentru toată grupa.</span>
+        </section>
+      </div>
+
+      <section class="format-section" aria-labelledby="format-title">
+        <div class="section-heading"><h2 id="format-title">O activitate nouă începe cu un format</h2><span class="section-count">5 moduri de a învăța</span></div>
+        <div class="template-grid" id="template-grid"></div>
+      </section>
+
+      <section id="exploreaza" class="explore-section" aria-labelledby="examples-title">
+        <div class="section-heading"><div><p class="overline">NU PORNI DE LA O PAGINĂ GOALĂ</p><h2 id="examples-title">O doză de inspirație</h2></div><span class="section-count" id="example-count" aria-live="polite">5 modele editabile</span></div>
+        <div class="resource-toolbar">
+          <div class="filter-group" role="group" aria-label="Filtrează modelele după format">
+            <button class="filter-chip active" data-filter="all" aria-pressed="true">Toate</button>
+            <button class="filter-chip" data-filter="quiz" aria-pressed="false">Quiz</button>
+            <button class="filter-chip" data-filter="match" aria-pressed="false">Potrivire</button>
+            <button class="filter-chip" data-filter="sort" aria-pressed="false">Sortare</button>
+            <button class="filter-chip" data-filter="order" aria-pressed="false">Ordonare</button>
+            <button class="filter-chip" data-filter="memory" aria-pressed="false">Memory</button>
+          </div>
+          <label class="resource-search"><span data-icon="search"></span><input type="search" id="resource-search" placeholder="Caută un subiect…" aria-label="Caută modele de activități" /></label>
+        </div>
+        <div class="example-grid" id="example-grid"></div>
+        <div class="search-empty" id="search-empty" hidden><span data-icon="search"></span><h3>Niciun model găsit</h3><p>Încearcă alt cuvânt sau explorează toate formatele.</p><button id="reset-filters" class="button button-soft">Resetează filtrele</button></div>
+      </section>
+
+      <section class="materials-section" id="activitatile-mele" aria-labelledby="materials-title">
+        <div class="section-heading"><div><p class="overline">GATA DE CONTINUAT</p><h2 id="materials-title">Materialele mele</h2></div><button class="text-button" data-action="open-create">+ Adaugă o activitate</button></div>
+        <div id="library-list" class="library-list"></div>
+      </section>
+
+      <section class="upcoming-section" id="spatiul-profesorului" aria-labelledby="upcoming-title">
+        <div class="section-heading"><div><p class="overline">ATELIERUL CREȘTE ALĂTURI DE NOI</p><h2 id="upcoming-title">În curând, mai mult loc pentru idei</h2></div><span class="planned-badge">În pregătire</span></div>
+        <div class="upcoming-grid">
+          <details><summary><span class="upcoming-icon" data-icon="calendar"></span><span>Calendarul clasei<small>Lecții și momente importante</small></span><span class="detail-plus" aria-hidden="true">+</span></summary><p>Aici vor putea fi organizate lecțiile, temele și evenimentele, împreună cu materialele pregătite pentru fiecare zi.</p></details>
+          <details><summary><span class="upcoming-icon" data-icon="diagram"></span><span>Diagrame și organigrame<small>Idei care prind formă</small></span><span class="detail-plus" aria-hidden="true">+</span></summary><p>Pregătim un editor pentru scheme, hărți de idei și organizarea proiectelor clasei.</p></details>
+          <details><summary><span class="upcoming-icon" data-icon="book"></span><span>Template-uri de lecții<small>Un început pentru fiecare temă</small></span><span class="detail-plus" aria-hidden="true">+</span></summary><p>Planuri de lecție și fișe reutilizabile, pe care să le adaptezi conținutului predat și ritmului clasei tale.</p></details>
+        </div>
+      </section>
+      <footer class="workspace-footer"><span>Fă loc curiozității.</span><span>Pentru învățători și profesori, cu grijă pentru copii.</span></footer>
+    </main>
+  </div>
+  <div class="modal-backdrop" id="modal-backdrop" hidden><div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"></div></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="atelier-art.js"></script>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="atelier.js"></script>
+</body>
+</html>
