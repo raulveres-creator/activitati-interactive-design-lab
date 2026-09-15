@@ -1,6 +1,12 @@
 # Activități interactive
 
-Platformă pentru profesori cu lucru local și integrare Supabase pentru conturi Google și salvare privată. Acest director este sursa paginii de previzualizare; proiectul React extras în `work` este o versiune separată, mai veche.
+Platformă pentru profesori cu lucru local și integrare Supabase pentru conturi Google și salvare privată.
+
+Site public: https://atelier-profesori.vercel.app/
+
+Repository activ: https://github.com/raulveres-creator/activitati-interactive-design-lab
+
+Vercel publică automat ramura `main` în proiectul `atelier-profesori`. Pentru schimbări de design, folosește o ramură separată și previzualizarea Vercel; integrarea în `main` actualizează site-ul public. Proiectul este static, cu presetul Other, directorul rădăcină `./` și fără comandă de build. Include întotdeauna folderele `assets` și `vendor`.
 
 Include:
 
@@ -22,8 +28,10 @@ Designul paginii principale este definit în `atelier.css`, ilustrațiile în `a
 
 Servește acest director printr-un server static HTTP, într-un browser modern. Modulul de prezență folosește module JavaScript și necesită servire HTTP. Previzualizarea de lucru este disponibilă la `http://127.0.0.1:4173/` cât timp serverul local rulează.
 
-Pornire din rădăcina workspace-ului: `node work/serve-preview.cjs`.
+În workspace-ul Codex, checkout-ul activ este `work/atelier-production`. Pornire din rădăcina workspace-ului: `node work/serve-preview.cjs`.
 
 Datele locale pot fi copiate în cont prin „Adu în cont datele din acest browser”. Un link partajat conține doar activitatea aleasă și poate fi deschis fără cont; grupele și prezențele nu sunt incluse în link.
 
-Configurare și stare backend: `../../supabase/README.md`. Loginul Google devine disponibil după activarea furnizorului în Supabase; interfața verifică această stare la încărcare.
+Google este activ în Supabase. Site URL este `https://atelier-profesori.vercel.app/`; adresele de redirect permise includ această adresă și `http://127.0.0.1:4173/`. Domeniile de preview nu sunt autorizate automat pentru login. Callback-ul Google rămâne `https://jqscykptevmhkqtuffqo.supabase.co/auth/v1/callback`.
+
+`backend-config.js` conține numai cheia publică publishable. Nu adăuga parole, chei secrete sau secretul Google în repository. Documentația și migrarea bazei de date se află în directorul `supabase` al workspace-ului Codex, separat de fișierele publicate.
