@@ -35,7 +35,7 @@
     };
     return '<span class="activity-demo" aria-hidden="true"><span class="demo-top"><i></i><i></i><i></i><span>01 / 05</span></span><span class="demo-body">'+(views[type]||views.quiz)+'</span></span>';
   };
-  const studio = '<div class="studio-preview" aria-hidden="true"><div class="studio-preview-top">'+icon('layers')+'<span>01 / 05</span><b>●</b></div><div class="studio-preview-main">'+demo('quiz')+'</div><div class="studio-preview-bottom"><span>'+icon('quiz')+'</span><span>'+icon('match')+'</span><span>'+icon('sort')+'</span><span>'+icon('memory')+'</span></div></div>';
+  const studio = `<div class="lesson-scene" aria-hidden="true"><div class="scene-halo"></div><div class="scene-plinth"></div><div class="lesson-stack"><div class="lesson-sheet sheet-back"></div><div class="lesson-sheet sheet-mid"></div><div class="lesson-front"><div class="lesson-heading">${icon('quiz')}<span class="lesson-progress"><i></i><i></i><i></i></span></div><div class="lesson-equation">2 + 3 <span>=</span> ?</div><div class="lesson-options"><span>4</span><span class="lesson-correct">5 <small>✓</small></span><span>6</span></div></div></div><div class="floating-token token-book">${icon('book')}</div><div class="floating-token token-check">✓</div><div class="scene-pearl"></div></div>`;
   const covers={quiz:'shapes',match:'animals',sort:'habitat',order:'growth',memory:'memory'};
   window.atelierArt = {icon, scene:type=>'<img class="activity-cover" src="assets/'+(covers[type]||'shapes')+'.webp" width="960" height="640" alt="" loading="lazy" decoding="async">', hero:studio};
 })();
