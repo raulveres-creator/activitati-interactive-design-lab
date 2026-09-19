@@ -61,7 +61,7 @@ function celebrate() {
     const angle = i * Math.PI / 6;
     spark.style.setProperty('--spark-x',`${Math.cos(angle)*130}px`);
     spark.style.setProperty('--spark-y',`${Math.sin(angle)*120}px`);
-    spark.style.setProperty('--spark-color',['#60ceec','#a591fb','#f3acd9'][i%3]);
+    spark.style.setProperty('--spark-color',['var(--scene-cyan)','var(--scene-violet)','var(--scene-blue)'][i%3]);
     card.append(spark); setTimeout(() => spark.remove(),850);
   }
 }

@@ -7,7 +7,6 @@ await ready;
 
   let savingActivity = false;
   const MAX_ITEMS = 24;
-  const ICONS = { quiz:'?', match:'↔', sort:'▦', order:'↕', memory:'◈' };
   const TYPES = {
     quiz:{ label:'Quiz', desc:'Întrebări cu variante', tone:'green' },
     match:{ label:'Potrivire', desc:'Leagă perechile corecte', tone:'coral' },
@@ -59,7 +58,7 @@ await ready;
   function parseSharedActivity() { const match=location.hash.match(/^#share=([^&]+)/); if (!match) return null; try { const value=JSON.parse(fromBase64Url(match[1])); return validateActivity(value) ? value : null; } catch { return null; } }
 
   function renderTemplates() {
-    $('#template-grid').innerHTML = Object.entries(TYPES).map(([type, info]) => `<button class="template-card tone-${info.tone}" data-action="template" data-type="${type}" aria-label="Creează: ${t(info.label)}"><span class="template-icon">${art.icon(type)}</span><span><strong class="format-name">${t(info.label)}</strong><span class="format-description">${t(info.desc)}</span></span><span class="template-arrow" aria-hidden="true">↗</span></button>`).join('');
+    $('#template-grid').innerHTML = Object.entries(TYPES).map(([type, info]) => `<button class="template-card tone-${info.tone}" data-action="template" data-type="${type}" aria-label="Creează: ${t(info.label)}">${art.model(type)}<span class="format-copy"><strong class="format-name">${t(info.label)}</strong><span class="format-description">${t(info.desc)}</span></span><span class="template-arrow" aria-hidden="true">↗</span></button>`).join('');
     applyTranslations($('#template-grid'));
   }
   function renderExamples() {
@@ -75,7 +74,7 @@ await ready;
     const list=$('#library-list');
     $('#nav-library-count').textContent = userActivities.length;
     if (!userActivities.length) { list.innerHTML='<div class="library-empty"><span class="empty-book">' + art.icon('folder') + '</span><div><strong>Aici prind rădăcini ideile tale.</strong>Salvează prima activitate și revino la ea oricând.</div><button class="button button-soft" data-action="open-create">Creează prima activitate →</button></div>'; applyTranslations(list); return; }
-    list.innerHTML=userActivities.map(activity => `<article class="library-row"><div class="library-row-icon">${ICONS[activity.type]}</div><div><h3>${escapeHtml(activity.title)}</h3><p>${t(TYPES[activity.type].label)} · ${escapeHtml(activity.age || t('Fără grupă de vârstă'))} · ${workspace.user ? t('în contul tău') : t('salvat în browser')}</p></div><div class="library-actions"><button class="icon-button" title="${t('Joacă')}" data-action="play" data-id="${activity.id}">▶</button><button class="icon-button" title="${t('Editează')}" data-action="edit" data-id="${activity.id}">✎</button><button class="icon-button" title="${t('Copiază linkul')}" data-action="share" data-id="${activity.id}">↗</button><button class="icon-button danger" title="${t('Șterge')}" data-action="delete" data-id="${activity.id}">×</button></div></article>`).join('');
+    list.innerHTML=userActivities.map(activity => `<article class="library-row"><div class="library-row-icon">${art.scene(activity.type)}<span class="library-type-icon">${art.icon(activity.type)}</span></div><div><h3>${escapeHtml(activity.title)}</h3><p>${t(TYPES[activity.type].label)} · ${escapeHtml(activity.age || t('Fără grupă de vârstă'))} · ${workspace.user ? t('în contul tău') : t('salvat în browser')}</p></div><div class="library-actions"><button class="icon-button" title="${t('Joacă')}" data-action="play" data-id="${activity.id}">▶</button><button class="icon-button" title="${t('Editează')}" data-action="edit" data-id="${activity.id}">✎</button><button class="icon-button" title="${t('Copiază linkul')}" data-action="share" data-id="${activity.id}">↗</button><button class="icon-button danger" title="${t('Șterge')}" data-action="delete" data-id="${activity.id}">×</button></div></article>`).join('');
     applyTranslations(list);
   }
 
@@ -94,7 +93,7 @@ await ready;
   }
   function editorContent(activity=null, type=selectedType) {
     const editing=!!activity && userActivities.some(item=>item.id===activity.id); selectedType=type;
-    return `<div class="modal-header"><div><p class="eyebrow">${editing?'Editează activitatea':'Activitate nouă pentru clasă'}</p><h2 id="modal-title">${editing?'Dă-i o formă mai bună':'Alege un format și începe'}</h2><p>${workspace.user ? 'Conținutul se salvează în contul tău.' : 'Conținutul se salvează în acest browser. Intră în cont pentru acces de pe alte dispozitive.'}</p></div><button class="modal-close" data-action="close" aria-label="Închide">×</button></div><div class="modal-body"><div class="type-picker">${Object.entries(TYPES).map(([key,info])=>`<button class="type-option ${key===type?'selected':''}" data-action="switch-type" data-type="${key}"><span>${ICONS[key]}</span>${info.label}</button>`).join('')}</div><div id="editor-fields">${editorFields(activity,type)}</div></div>`;
+    return `<div class="modal-header"><div><p class="eyebrow">${editing?'Editează activitatea':'Activitate nouă pentru clasă'}</p><h2 id="modal-title">${editing?'Dă-i o formă mai bună':'Alege un format și începe'}</h2><p>${workspace.user ? 'Conținutul se salvează în contul tău.' : 'Conținutul se salvează în acest browser. Intră în cont pentru acces de pe alte dispozitive.'}</p></div><button class="modal-close" data-action="close" aria-label="Închide">×</button></div><div class="modal-body"><div class="type-picker">${Object.entries(TYPES).map(([key,info])=>`<button class="type-option ${key===type?'selected':''}" data-action="switch-type" data-type="${key}"><span>${art.icon(key)}</span>${info.label}</button>`).join('')}</div><div id="editor-fields">${editorFields(activity,type)}</div></div>`;
   }
   function editorFields(activity,type) {
     const a=activity || seedForType(type);

@@ -24,9 +24,9 @@ Modulul `prezenta.html` permite gestionarea grupelor și bifarea prezenței. Sim
 
 Designul paginii principale este definit în `atelier.css`, ilustrațiile în `atelier-art.js`, iar comportamentul paginii în `atelier.js` și `app.js`. Previzualizarea unei activități păstrează modificările nesalvate când revii la editor.
 
-Stratul vizual interactiv este în `experience.css`. Mini-quizul introductiv (`experience.js`) are trei întrebări și folosește ilustrația originală generată pentru proiect, `assets/wildlife-atlas.webp`. Nu scrie rezultate în datele profesorului. Textele noi sunt disponibile în cele șase limbi prin `experience-copy.js`.
+Stratul vizual interactiv este în `experience.css`. Mini-quizul introductiv (`experience.js`) are trei întrebări și folosește ilustrația originală generată pentru proiect, `assets/wildlife-atlas.webp`. Nu scrie rezultate în datele profesorului. Modelele, biblioteca, editorul și prezența folosesc același sistem vizual; toate cele opt palete controlează inclusiv fundalul animat, degradeurile și butoanele. Ilustrațiile originale ale modelelor sunt reunite în `assets/learning-worlds.webp`, iar formele 3D ale formatelor sunt construite în CSS. Cardul de acces la prezență nu mai conține soarele rotativ. Textele noi sunt disponibile în cele șase limbi prin `experience-copy.js`.
 
-`scene-controls.js` oferă controlul mișcării, modului luminos/întunecat și sunetelor pe pagina principală și la prezență. Sunetele sunt oprite la fiecare vizită până la activarea explicită. Mișcarea respectă preferința sistemului și poate fi oprită separat; cursorul nativ personalizat și efectul de click sunt definite în `cursor.js` și `cursor.css`.
+`scene-controls.js` oferă schimbarea modului luminos/întunecat și activarea sunetelor pe pagina principală și la prezență. Sunetele sunt oprite la fiecare vizită până la activarea explicită. Mișcarea se oprește automat când sistemul solicită animații reduse; cursorul nativ personalizat și efectul de click sunt definite în `cursor.js` și `cursor.css`.
 
 ## Pornire
 
