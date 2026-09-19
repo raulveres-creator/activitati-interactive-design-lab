@@ -11,12 +11,14 @@
   <link rel="stylesheet" href="atelier.css" />
   <link rel="stylesheet" href="account.css" />
   <link rel="stylesheet" href="studio-motion.css" />
+  <link rel="stylesheet" href="cursor.css" />
+  <link rel="stylesheet" href="experience.css" />
 </head>
-<body class="atelier">
-  <div class="ambient-background" aria-hidden="true"><div class="ambient-wave wave-one"></div><div class="ambient-wave wave-two"></div></div>
+<body class="atelier neon-workspace">
+  <div class="ambient-background" aria-hidden="true"><div class="ambient-wave wave-one"></div><div class="ambient-wave wave-two"></div><div class="ambient-orbit"></div><div class="ambient-stars"></div></div>
   <a class="skip-link" href="#top">Sari la conținut</a>
   <aside class="sidebar" aria-label="Meniul atelierului">
-    <a class="brand" href="#top"><svg viewBox="0 0 48 48" width="42" height="42" fill="none" aria-hidden="true"><rect width="48" height="48" rx="15" fill="#e9eee2"/><path d="M9 12c6-1 10 1 14 5v21c-4-4-8-5-14-4V12Z" fill="#276250"/><path d="M26 17c4-4 8-6 14-5v22c-6-1-10 0-14 4V17Z" fill="#e29b76"/><path d="M14 20c2 0 3 1 5 2m-5 4 5 2m12-6 4-2m-4 8 4-2" stroke="#fffaf2" stroke-width="2" stroke-linecap="round"/></svg><span>Activități<br /><strong>interactive</strong></span></a>
+    <a class="brand" href="#top" aria-label="Activități interactive"><svg viewBox="0 0 48 48" width="42" height="42" fill="none" aria-hidden="true"><rect width="48" height="48" rx="15" fill="#e9eee2"/><path d="M9 12c6-1 10 1 14 5v21c-4-4-8-5-14-4V12Z" fill="#276250"/><path d="M26 17c4-4 8-6 14-5v22c-6-1-10 0-14 4V17Z" fill="#e29b76"/><path d="M14 20c2 0 3 1 5 2m-5 4 5 2m12-6 4-2m-4 8 4-2" stroke="#fffaf2" stroke-width="2" stroke-linecap="round"/></svg><span>Activități<br /><strong>interactive</strong></span></a>
     <p class="nav-caption">ATELIERUL TĂU</p>
     <nav class="workspace-nav" aria-label="Navigare principală">
       <a class="nav-item active" href="#top" data-section="top"><span data-icon="home"></span><span class="nav-label">Prezentare generală</span><span class="mobile-nav-label">Acasă</span></a>
@@ -31,25 +33,38 @@
     <header class="workspace-header">
       <span class="workspace-location">Spațiul meu <span aria-hidden="true">/</span> <strong>Atelierul profesorului</strong></span>
       <time id="today-label"></time>
-      <div class="account-header"><span class="account-status" data-storage-status>Se încarcă…</span><button type="button" class="account-trigger" data-account-open>Intră în cont</button></div>
+      <div class="experience-controls" id="experience-controls"></div><div class="account-header"><span class="account-status" data-storage-status>Se încarcă…</span><button type="button" class="account-trigger" data-account-open>Intră în cont</button></div>
       <a class="mobile-brand" href="#top"><svg viewBox="0 0 48 48" width="42" height="42" fill="none" aria-hidden="true"><rect width="48" height="48" rx="15" fill="#e9eee2"/><path d="M9 12c6-1 10 1 14 5v21c-4-4-8-5-14-4V12Z" fill="#276250"/><path d="M26 17c4-4 8-6 14-5v22c-6-1-10 0-14 4V17Z" fill="#e29b76"/><path d="M14 20c2 0 3 1 5 2m-5 4 5 2m12-6 4-2m-4 8 4-2" stroke="#fffaf2" stroke-width="2" stroke-linecap="round"/></svg>Activități interactive</a>
     </header>
     <div id="account-sync-notice" class="account-sync-notice" role="status" hidden><span></span><button type="button" data-account-open>Deschide contul</button></div>
     <main id="top" class="workspace-main">
-      <div class="welcome-row"><div><p class="overline">PUȚINĂ INSPIRAȚIE. MULTE POSIBILITĂȚI.</p><h1>Ce pregătim pentru clasă?</h1><p>Ideile tale, transformate în momente de învățare.</p></div><button class="button button-primary" data-action="open-create"><span data-icon="plus"></span>Activitate nouă</button></div>
-
-      <div class="feature-grid">
-        <section class="studio-banner" aria-labelledby="banner-title">
-          <div class="banner-copy"><span class="banner-label">DIN IDEE, ÎN LECȚIE</span><h2 id="banner-title">Lecții cu mai mult<br /><em>„Aha!”</em></h2><p>Pornește de la un model.<br />Adaugă ce vrei să descopere copiii.</p><a class="button button-ink" href="#exploreaza">Găsește inspirație <span aria-hidden="true">↗</span></a></div>
-          <div class="banner-art" id="banner-art" aria-hidden="true"></div>
+      <section class="discovery-hero" aria-labelledby="discovery-title">
+        <div class="discovery-copy">
+          <p class="discovery-eyebrow"><span aria-hidden="true"></span><span data-copy="eyebrow">UN UNIVERS DE DESCOPERIT</span></p>
+          <h1 id="discovery-title"><span data-copy="title">Creează lecții care</span> <em data-copy="accent">prind viață.</em></h1>
+          <p class="discovery-lead" data-copy="lead">Quiz-uri, potrivire, sortare, ordonare și memory. Ideile tale devin experiențe pe care copiii abia așteaptă să le exploreze.</p>
+          <div class="discovery-actions"><button type="button" class="button button-primary portal-trigger" data-action="open-create"><span data-copy="create">Creează o activitate</span><span aria-hidden="true">↗</span></button><a class="button discovery-secondary" href="#exploreaza" data-copy="explore">Explorează modelele</a></div>
+          <p class="discovery-note" data-copy="note">Încearcă un joc chiar aici. Apoi creează-l pe al tău.</p>
+        </div>
+        <section class="discovery-stage" aria-labelledby="discovery-quiz-title">
+          <div class="quiz-orbit" aria-hidden="true"></div>
+          <div class="discovery-card" id="discovery-card">
+            <div class="discovery-card-top"><div><span class="discovery-tag" data-copy="badge">JOACĂ ȘI DESCOPERĂ</span><h2 id="discovery-quiz-title" data-copy="quiz">Animale sălbatice</h2></div><span class="discovery-counter" id="discovery-counter">01 / 03</span></div>
+            <p class="discovery-subtitle" data-copy="subtitle">Un mic exemplu. Curiozitate cât cuprinde.</p>
+            <progress class="discovery-progress" id="discovery-progress" max="3" value="0" aria-label="Progres"></progress>
+            <h3 id="discovery-question"></h3>
+            <div class="animal-grid" id="animal-grid" role="group" aria-labelledby="discovery-question"></div>
+            <div class="discovery-feedback"><p id="discovery-feedback" role="status" aria-live="polite"></p><button type="button" class="quiz-next" id="quiz-next" hidden></button></div>
+          </div>
         </section>
-        <section class="arrival-widget" aria-labelledby="arrival-heading">
-          <div class="widget-kicker"><span data-icon="people"></span>RITUALUL DE DIMINEAȚĂ</div>
+      </section>
+      <section class="teacher-launch" aria-labelledby="teacher-launch-title">
+        <div><p class="overline" data-copy="ready">SPAȚIUL TĂU DE LUCRU</p><h2 id="teacher-launch-title" data-copy="work">Mai departe, în atelier.</h2><p data-copy="workText">Pregătește activitățile și întâmpină fiecare copil cu un bun venit.</p></div>
+        <a class="arrival-widget arrival-link" href="prezenta.html" aria-labelledby="arrival-heading">
           <div class="arrival-sun" aria-hidden="true"><div class="sun-rays"><i style="--ray:0"></i><i style="--ray:1"></i><i style="--ray:2"></i><i style="--ray:3"></i><i style="--ray:4"></i><i style="--ray:5"></i><i style="--ray:6"></i><i style="--ray:7"></i><i style="--ray:8"></i><i style="--ray:9"></i><i style="--ray:10"></i><i style="--ray:11"></i></div><div class="sun-core"></div><div class="sun-shadow"></div></div>
-          <h2 id="arrival-heading">Uite cine a venit!</h2><p id="arrival-summary">Un bun venit pentru fiecare copil.</p><a class="button button-soft" href="prezenta.html">Deschide prezența <span aria-hidden="true">→</span></a>
-          <span class="widget-note">Același simbol pentru toată grupa.</span>
-        </section>
-      </div>
+          <div><h2 id="arrival-heading">Uite cine a venit!</h2><p id="arrival-summary">Un bun venit pentru fiecare copil.</p><span class="arrival-cta">Deschide prezența <span aria-hidden="true">→</span></span></div>
+        </a>
+      </section>
 
       <section class="format-section" aria-labelledby="format-title">
         <div class="section-heading"><h2 id="format-title">O activitate nouă începe cu un format</h2><span class="section-count">5 moduri de a învăța</span></div>
@@ -94,5 +109,7 @@
   <script src="atelier-art.js"></script>
   <script type="module" src="app.js"></script>
   <script type="module" src="atelier.js"></script>
+  <script type="module" src="cursor.js"></script>
+  <script type="module" src="experience.js"></script>
 </body>
 </html>

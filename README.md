@@ -24,6 +24,10 @@ Modulul `prezenta.html` permite gestionarea grupelor și bifarea prezenței. Sim
 
 Designul paginii principale este definit în `atelier.css`, ilustrațiile în `atelier-art.js`, iar comportamentul paginii în `atelier.js` și `app.js`. Previzualizarea unei activități păstrează modificările nesalvate când revii la editor.
 
+Stratul vizual interactiv este în `experience.css`. Mini-quizul introductiv (`experience.js`) are trei întrebări și folosește ilustrația originală generată pentru proiect, `assets/wildlife-atlas.webp`. Nu scrie rezultate în datele profesorului. Textele noi sunt disponibile în cele șase limbi prin `experience-copy.js`.
+
+`scene-controls.js` oferă controlul mișcării, modului luminos/întunecat și sunetelor pe pagina principală și la prezență. Sunetele sunt oprite la fiecare vizită până la activarea explicită. Mișcarea respectă preferința sistemului și poate fi oprită separat; cursorul nativ personalizat și efectul de click sunt definite în `cursor.js` și `cursor.css`.
+
 ## Pornire
 
 Servește acest director printr-un server static HTTP, într-un browser modern. Modulul de prezență folosește module JavaScript și necesită servire HTTP. Previzualizarea de lucru este disponibilă la `http://127.0.0.1:4173/` cât timp serverul local rulează.

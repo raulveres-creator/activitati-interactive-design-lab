@@ -31,7 +31,7 @@ function currentAppearance() {
     return {mode,palette};
   } catch { return {mode:'light',palette:'sage'}; }
 }
-function applyAppearance(mode, palette, persist = true) {
+export function applyAppearance(mode, palette, persist = true) {
   const nextMode = MODES.some(item => item.id === mode) ? mode : 'light';
   const nextPalette = PALETTES.some(item => item.id === palette) ? palette : 'sage';
   document.documentElement.dataset.mode = nextMode;

@@ -4,7 +4,8 @@ await ready;
 
 (() => {
   document.querySelectorAll('[data-icon]').forEach(node => { node.innerHTML = window.atelierArt.icon(node.dataset.icon); });
-  document.getElementById('banner-art').innerHTML = window.atelierArt.hero;
+  const bannerArt = document.getElementById('banner-art');
+  if (bannerArt) bannerArt.innerHTML = window.atelierArt.hero;
   const today = new Date();
   const time = document.getElementById('today-label');
   time.dateTime = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
