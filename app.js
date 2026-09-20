@@ -1,5 +1,8 @@
 import {workspace, ready} from './account.js';
 import {applyTranslations, t} from './i18n.js';
+import {extraTypes,extraSeeds,validateExtra,shuffle,shuffledDifferent} from './activity-rules.js';
+import {editorExtra,readExtra,renderExtra,handleExtra,extraValidation,activityPreview} from './activity-extensions.js';
+import {imageMarkup,imageField,validImage} from './activity-media.js';
 await ready;
 
 (() => {
@@ -12,7 +15,8 @@ await ready;
     match:{ label:'Potrivire', desc:'Leagă perechile corecte', tone:'coral' },
     sort:{ label:'Sortare', desc:'Pune lucrurile la locul lor', tone:'yellow' },
     order:{ label:'Ordonare', desc:'Așază pașii în ordine', tone:'lavender' },
-    memory:{ label:'Memory', desc:'Găsește perechile', tone:'blue' }
+    memory:{ label:'Memory', desc:'Imagini, cuvinte și perechi', tone:'blue' },
+    ...extraTypes
   };
   const seeds = [
     { id:'seed-quiz', type:'quiz', title:'Forme în jurul nostru', instructions:'Alege răspunsul potrivit pentru fiecare întrebare.', age:'4–6 ani', subject:'Matematică', isSeed:true, questions:[
@@ -21,8 +25,9 @@ await ready;
     ]},
     { id:'seed-match', type:'match', title:'Animale și puii lor', instructions:'Unește fiecare animal cu puiul său.', age:'4–7 ani', subject:'Științe', isSeed:true, pairs:[{id:'p1',left:'Câine',right:'Cățeluș'},{id:'p2',left:'Pisică',right:'Pisoi'},{id:'p3',left:'Găină',right:'Pui'}] },
     { id:'seed-sort', type:'sort', title:'Unde locuiesc animalele?', instructions:'Alege categoria potrivită pentru fiecare animal.', age:'5–8 ani', subject:'Științe', isSeed:true, categories:[{id:'c1',name:'Apă'},{id:'c2',name:'Uscat'},{id:'c3',name:'Cuib'}], items:[{id:'i1',text:'Delfin',categoryId:'c1'},{id:'i2',text:'Pasăre',categoryId:'c3'},{id:'i3',text:'Vulpe',categoryId:'c2'},{id:'i4',text:'Arici',categoryId:'c2'}] },
-    { id:'seed-order', type:'order', title:'Semința devine floare', instructions:'Așază etapele în ordinea corectă.', age:'6–9 ani', subject:'Natură', isSeed:true, items:[{id:'o1',text:'Punem sămânța în pământ'},{id:'o2',text:'Apare lăstarul'},{id:'o3',text:'Crește planta'},{id:'o4',text:'Se deschide floarea'}] },
-    { id:'seed-memory', type:'memory', title:'Perechi din natură', instructions:'Întoarce câte două cartonașe și găsește ideile asociate: Soare–Lumină, Ploaie–Umbrelă, Floare–Albină.', age:'5–8 ani', subject:'Natură', isSeed:true, pairs:[{id:'m1',textA:'Soare',textB:'Lumină'},{id:'m2',textA:'Ploaie',textB:'Umbrelă'},{id:'m3',textA:'Floare',textB:'Albină'}] }
+    { id:'seed-order', type:'order', title:'Numere în ordine', instructions:'Mută numerele de la cel mai mic la cel mai mare. Poți înlocui numerele cu pașii unei rețete, cuvintele unei propoziții sau evenimente.', age:'5–8 ani', subject:'Matematică', isSeed:true, items:[{id:'o1',text:'2'},{id:'o2',text:'5'},{id:'o3',text:'8'},{id:'o4',text:'12'}] },
+    { id:'seed-memory', type:'memory', title:'Safari Memory', instructions:'Întoarce cartonașele și găsește două imagini identice. Pozițiile se schimbă la fiecare joc.', age:'4–8 ani', subject:'Animale', isSeed:true, memoryMode:'images', pairs:[{id:'m1',textA:'Leu',textB:'Leu',image:'asset:lion'},{id:'m2',textA:'Elefant',textB:'Elefant',image:'asset:elephant'},{id:'m3',textA:'Girafă',textB:'Girafă',image:'asset:giraffe'},{id:'m4',textA:'Zebră',textB:'Zebră',image:'asset:zebra'}] },
+    ...extraSeeds
   ];
 
   let userActivities = loadActivities();
@@ -45,12 +50,13 @@ await ready;
   async function persist(next) { await workspace.save('activities',next); userActivities = next; renderLibrary(); }
   function toast(message) { const node=$('#toast'); node.textContent=message; node.classList.add('show'); window.clearTimeout(toast.timer); toast.timer=window.setTimeout(()=>node.classList.remove('show'),2600); }
   function validateActivity(activity) {
-    if (!activity || typeof activity !== 'object' || !TYPES[activity.type] || typeof activity.title !== 'string' || !activity.title.trim()) return false;
+    if (!activity || typeof activity !== 'object' || !Object.hasOwn(TYPES,activity.type) || typeof activity.title !== 'string' || !activity.title.trim()) return false;
+    if (Object.hasOwn(extraTypes,activity.type)) return validateExtra(activity);
     if (activity.type==='quiz') return Array.isArray(activity.questions) && activity.questions.length > 0 && activity.questions.every(q => q && q.prompt && Array.isArray(q.options) && q.options.length >= 2 && q.options.filter(o=>o.id===q.correctId).length===1);
     if (activity.type==='match') return Array.isArray(activity.pairs) && activity.pairs.length >= 2 && activity.pairs.every(p=>p.left && p.right);
     if (activity.type==='sort') return Array.isArray(activity.categories) && activity.categories.length >= 2 && Array.isArray(activity.items) && activity.items.length >= 2 && activity.items.every(i=>i.text && activity.categories.some(c=>c.id===i.categoryId));
     if (activity.type==='order') return Array.isArray(activity.items) && activity.items.length >= 2 && activity.items.every(i=>i.text);
-    return Array.isArray(activity.pairs) && activity.pairs.length >= 2 && activity.pairs.every(p=>p.textA && p.textB);
+    return Array.isArray(activity.pairs) && activity.pairs.length >= 2 && activity.pairs.every(p=>p && p.textA && p.textB && (!(activity.memoryMode && activity.memoryMode!=='text') || validImage(p.image)));
   }
   function toBase64Url(text) { const bytes=new TextEncoder().encode(text); let binary=''; bytes.forEach(byte=>binary+=String.fromCharCode(byte)); return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
   function fromBase64Url(value) { const binary=atob(value.replace(/-/g,'+').replace(/_/g,'/') + '='.repeat((4-value.length%4)%4)); const bytes=Uint8Array.from(binary, ch=>ch.charCodeAt(0)); return new TextDecoder().decode(bytes); }
@@ -58,6 +64,8 @@ await ready;
   function parseSharedActivity() { const match=location.hash.match(/^#share=([^&]+)/); if (!match) return null; try { const value=JSON.parse(fromBase64Url(match[1])); return validateActivity(value) ? value : null; } catch { return null; } }
 
   function renderTemplates() {
+    $('#format-count').textContent = `${Object.keys(TYPES).length} formate de explorat`;
+    $('.filter-group').innerHTML = `<button class="filter-chip active" data-filter="all" aria-pressed="true">${t('Toate')}</button>` + Object.entries(TYPES).map(([type,info])=>`<button class="filter-chip" data-filter="${type}" aria-pressed="false">${t(info.label)}</button>`).join('');
     $('#template-grid').innerHTML = Object.entries(TYPES).map(([type, info]) => `<button class="template-card tone-${info.tone}" data-action="template" data-type="${type}" aria-label="Creează: ${t(info.label)}">${art.model(type)}<span class="format-copy"><strong class="format-name">${t(info.label)}</strong><span class="format-description">${t(info.desc)}</span></span><span class="template-arrow" aria-hidden="true">↗</span></button>`).join('');
     applyTranslations($('#template-grid'));
   }
@@ -66,7 +74,7 @@ await ready;
     const filtered = seeds.filter(a => (resourceFilter === 'all' || a.type === resourceFilter) && normal(a.title + ' ' + a.subject + ' ' + TYPES[a.type].label).includes(normal(resourceQuery)));
     $('#example-count').textContent = filtered.length === 1 ? `1 ${t('model editabil')}` : `${filtered.length} ${t('modele editabile')}`;
     $('#search-empty').hidden = filtered.length > 0;
-    $('#example-grid').innerHTML = filtered.map(activity => `<article class="example-card"><button class="example-picture" data-action="play" data-id="${activity.id}" data-type="${activity.type}" aria-label="${t('Încearcă')}: ${escapeHtml(activity.title)}"><span class="picture-label">${t(TYPES[activity.type].label)}</span>${art.scene(activity.type)}<span class="preview-hint">${t('Previzualizează ↗')}</span></button><div class="example-info"><h3>${escapeHtml(activity.title)}</h3><span class="example-meta">${escapeHtml(activity.subject)} <span aria-hidden="true">·</span> ${escapeHtml(activity.age)}</span></div><div class="example-actions"><button data-action="template" data-type="${activity.type}">${t('Folosește modelul')} <span aria-hidden="true">→</span></button><button data-action="play" data-id="${activity.id}">${t('Încearcă')}</button></div></article>`).join('');
+    $('#example-grid').innerHTML = filtered.map(activity => `<article class="example-card"><button class="example-picture" data-action="play" data-id="${activity.id}" data-type="${activity.type}" aria-label="${t('Încearcă')}: ${escapeHtml(activity.title)}"><span class="picture-label">${t(TYPES[activity.type].label)}</span><span class="activity-sample">${activityPreview(activity)}</span><span class="preview-hint">${t('Previzualizează ↗')}</span></button><div class="example-info"><h3>${escapeHtml(activity.title)}</h3><span class="example-meta">${escapeHtml(activity.subject)} <span aria-hidden="true">·</span> ${escapeHtml(activity.age)}</span></div><div class="example-actions"><button data-action="template" data-type="${activity.type}" data-seed-id="${activity.id}">${t('Folosește modelul')} <span aria-hidden="true">→</span></button><button data-action="play" data-id="${activity.id}">${t('Încearcă')}</button></div></article>`).join('');
     applyTranslations($('#example-grid'));
     applyTranslations($('#example-count'));
   }
@@ -99,12 +107,12 @@ await ready;
     const a=activity || seedForType(type);
     const editing=!!activity && userActivities.some(item=>item.id===activity.id);
     const common=`<div class="form-grid"><div class="form-row"><div class="field"><label for="activity-title">Titlu</label><input id="activity-title" value="${escapeHtml(a.title)}" maxlength="100" /></div><div class="field"><label for="activity-age">Vârsta</label><input id="activity-age" value="${escapeHtml(a.age || '')}" placeholder="ex. 6–8 ani" maxlength="30" /></div></div><div class="form-row"><div class="field"><label for="activity-subject">Subiect</label><input id="activity-subject" value="${escapeHtml(a.subject || '')}" placeholder="ex. Natură" maxlength="40" /></div><div class="field"><label for="activity-instructions">Instrucțiuni</label><input id="activity-instructions" value="${escapeHtml(a.instructions || '')}" maxlength="140" /></div></div></div>`;
-    let specific='';
+    let specific=Object.hasOwn(extraTypes,type)?editorExtra(a):'';
     if(type==='quiz') specific=`<div class="editor-section"><div class="editor-item-head"><span>Întrebări</span><button class="text-button" data-action="add-question">+ Adaugă întrebare</button></div><div id="question-editor">${a.questions.map((q,index)=>questionEditor(q,index)).join('')}</div></div>`;
     if(type==='match') specific=`<div class="editor-section"><div class="editor-item-head"><span>Perechi</span><button class="text-button" data-action="add-pair">+ Adaugă pereche</button></div><div id="pair-editor">${a.pairs.map((p,index)=>pairEditor(p,index)).join('')}</div></div>`;
     if(type==='sort') specific=`<div class="editor-section"><div class="editor-item-head"><span>Categorii</span></div><div class="field"><input id="sort-categories" value="${escapeHtml(a.categories.map(c=>c.name).join(', '))}" placeholder="Apă, Uscat" /></div><div class="editor-item-head sort-items-head"><span>Elemente</span><button class="text-button" data-action="add-sort-item">+ Adaugă element</button></div><div id="sort-editor">${a.items.map((item,index)=>sortEditor(item,index,a.categories)).join('')}</div></div>`;
     if(type==='order') specific=`<div class="editor-section"><div class="editor-item-head"><span>Pași în ordinea corectă</span><button class="text-button" data-action="add-order-item">+ Adaugă pas</button></div><div id="order-editor">${a.items.map((item,index)=>orderEditor(item,index)).join('')}</div></div>`;
-    if(type==='memory') specific=`<div class="editor-section"><div class="editor-item-head"><span>Perechi de cartonașe</span><button class="text-button" data-action="add-memory-pair">+ Adaugă pereche</button></div><div id="memory-editor">${a.pairs.map((p,index)=>memoryEditor(p,index)).join('')}</div></div>`;
+    if(type==='memory') specific=memorySettings(a)+`<div class="editor-section"><div class="editor-item-head"><span>Perechi de cartonașe</span><button class="text-button" data-action="add-memory-pair">+ Adaugă pereche</button></div><div id="memory-editor">${a.pairs.map((p,index)=>memoryEditor(p,index)).join('')}</div></div>`;
     return `${common}${specific}<div class="validation" id="editor-validation"></div><div class="modal-footer"><button class="button button-ghost" data-action="close">Anulează</button><div class="right"><button class="button button-soft" data-action="preview-draft">Previzualizează</button><button class="button button-primary" data-action="save-activity" data-editing-id="${editing?a.id:''}">Salvează activitatea</button></div></div>`;
   }
   function seedForType(type) { return clone(seeds.find(a=>a.type===type)); }
@@ -112,7 +120,10 @@ await ready;
   function pairEditor(p,index) { return `<div class="editor-item pair-item-editor" data-index="${index}"><div class="editor-item-head"><span>Perechea ${index+1}</span>${index>1?'<button class="text-button" data-action="remove-pair">Elimină</button>':''}</div><div class="form-row"><div class="field"><label>Stânga</label><input data-field="left" value="${escapeHtml(p.left)}" maxlength="60" /></div><div class="field"><label>Dreapta</label><input data-field="right" value="${escapeHtml(p.right)}" maxlength="60" /></div></div></div>`; }
   function sortEditor(item,index,categories) { return `<div class="editor-item sort-item-editor" data-index="${index}"><div class="editor-item-head"><span>Elementul ${index+1}</span>${index>1?'<button class="text-button" data-action="remove-sort-item">Elimină</button>':''}</div><div class="form-row"><div class="field"><label>Text</label><input data-field="text" value="${escapeHtml(item.text)}" maxlength="60" /></div><div class="field"><label>Categorie</label><select data-field="categoryId">${categories.map(c=>`<option value="${c.id}" ${c.id===item.categoryId?'selected':''}>${escapeHtml(c.name)}</option>`).join('')}</select></div></div></div>`; }
   function orderEditor(item,index) { return `<div class="editor-item order-item-editor" data-index="${index}"><div class="editor-item-head"><span>Pasul ${index+1}</span>${index>1?'<button class="text-button" data-action="remove-order-item">Elimină</button>':''}</div><div class="field"><input data-field="text" value="${escapeHtml(item.text)}" maxlength="100" /></div></div>`; }
-  function memoryEditor(p,index) { return `<div class="editor-item memory-item-editor" data-index="${index}"><div class="editor-item-head"><span>Perechea ${index+1}</span>${index>1?'<button class="text-button" data-action="remove-memory-pair">Elimină</button>':''}</div><div class="form-row"><div class="field"><label>Cartonaș A</label><input data-field="textA" value="${escapeHtml(p.textA)}" maxlength="50" /></div><div class="field"><label>Cartonaș B</label><input data-field="textB" value="${escapeHtml(p.textB)}" maxlength="50" /></div></div></div>`; }
+  function memorySettings(a) {
+    return '<div class="form-grid"><div class="field"><label for="memory-mode">Tip de perechi</label><select id="memory-mode">'+[['images','Două imagini identice'],['image-word','Imagine și cuvânt'],['text','Două texte asociate']].map(([id,label])=>'<option value="'+id+'" '+((a.memoryMode||'text')===id?'selected':'')+'>'+label+'</option>').join('')+'</select></div><p class="editor-help">Pentru imagini identice, alege o singură imagine pe pereche: jocul creează automat două cartonașe. Poți folosi animalele incluse sau un link direct HTTPS către imagine, nu către pagina unui site. Imaginea trebuie să fie accesibilă celor care primesc jocul.</p></div>';
+  }
+  function memoryEditor(p,index) { return '<div class="editor-item memory-item-editor" data-index="'+index+'"><div class="editor-item-head"><span>Perechea '+(index+1)+'</span>'+(index>1?'<button class="text-button" data-action="remove-memory-pair">Elimină</button>':'')+'</div><div class="form-row"><div class="field"><label>Cuvânt / cartonaș A<input data-field="textA" value="'+escapeHtml(p.textA)+'" maxlength="50" /></label></div><div class="field memory-text-pair"><label>Cartonaș B, pentru asocieri text<input data-field="textB" value="'+escapeHtml(p.textB)+'" maxlength="50" /></label></div></div>'+imageField(p.image)+'</div>'; }
 
   function readEditor(type) {
     const title=$('#activity-title')?.value.trim(), age=$('#activity-age')?.value.trim(), subject=$('#activity-subject')?.value.trim(), instructions=$('#activity-instructions')?.value.trim();
@@ -121,14 +132,15 @@ await ready;
     if(type==='match') result.pairs=$$('.pair-item-editor').map(node=>({id:uid('p'),left:$('[data-field="left"]',node).value.trim(),right:$('[data-field="right"]',node).value.trim()}));
     if(type==='sort') { const names=$('#sort-categories').value.split(',').map(name=>name.trim()).filter(Boolean); result.categories=names.map((name,index)=>({id:`c${index+1}`,name})); result.items=$$('.sort-item-editor').map(node=>({id:uid('i'),text:$('[data-field="text"]',node).value.trim(),categoryId:$('[data-field="categoryId"]',node).value})); }
     if(type==='order') result.items=$$('.order-item-editor').map(node=>({id:uid('o'),text:$('[data-field="text"]',node).value.trim()}));
-    if(type==='memory') result.pairs=$$('.memory-item-editor').map(node=>({id:uid('m'),textA:$('[data-field="textA"]',node).value.trim(),textB:$('[data-field="textB"]',node).value.trim()}));
+    if(type==='memory') { result.memoryMode=$('#memory-mode').value; result.pairs=$$('.memory-item-editor').map(node=>{const textA=$('[data-field="textA"]',node).value.trim();return {id:uid('m'),textA,textB:result.memoryMode==='text'?$('[data-field="textB"]',node).value.trim():textA,image:$('[data-field="image"]',node).value.trim()};}); }
+    if(Object.hasOwn(extraTypes,type)) Object.assign(result,readExtra(type,$('#modal')));
     return result;
   }
   function showValidation(message) { const node=$('#editor-validation'); if(node){node.textContent=message; node.classList.add('visible');} }
   function openEditor(activity=null,type=activity?.type || 'quiz') { openModal(editorContent(activity,type)); }
 
   function playerMarkup(activity) { return `<div class="player" data-player-type="${activity.type}"><div class="player-top"><div><span class="player-kicker">${TYPES[activity.type].label} · ${escapeHtml(activity.age || '')}</span><h2 id="modal-title">${escapeHtml(activity.title)}</h2></div><button class="modal-close" data-action="close" aria-label="Închide">×</button></div><p class="player-instructions">${escapeHtml(activity.instructions || 'Hai să vedem ce știi!')}</p><div id="player-content"></div></div>`; }
-  function openPlayer(activity) { activePlayer={activity:clone(activity)}; openModal(playerMarkup(activity)); renderPlayer(); }
+  function openPlayer(activity) { const playable=clone(activity);if(playable.type==='quiz') {playable.questions=shuffle(playable.questions);playable.questions.forEach(q=>q.options=shuffle(q.options));} if(playable.type==='sort')playable.items=shuffle(playable.items);activePlayer={activity:playable}; openModal(playerMarkup(activity)); renderPlayer(); }
   function renderPlayer() {
     const {activity}=activePlayer, root=$('#player-content');
     if(activity.type==='quiz') renderQuiz(root,activity);
@@ -136,21 +148,28 @@ await ready;
     if(activity.type==='sort') renderSort(root,activity);
     if(activity.type==='order') renderOrder(root,activity);
     if(activity.type==='memory') renderMemory(root,activity);
+    if(Object.hasOwn(extraTypes,activity.type)) renderExtra(root,activePlayer);
     applyTranslations(root);
   }
   function renderQuiz(root,activity) {
     const state=activePlayer.state || (activePlayer.state={index:0,score:0,answered:false}); if(state.done) { root.innerHTML=`<div class="result"><strong>${state.score}/${activity.questions.length}</strong>Răspunsuri corecte. Bravo, ai încercat!</div><div class="player-actions"><button class="button button-soft" data-action="replay">Joacă din nou</button><button class="button button-primary" data-action="close">Înapoi</button></div>`; return; }
     const q=activity.questions[state.index]; root.innerHTML=`<div class="player-progress">Întrebarea ${state.index+1} din ${activity.questions.length}</div><h3 class="player-question">${escapeHtml(q.prompt)}</h3><div class="quiz-options">${q.options.map(o=>`<button class="quiz-option ${state.selected===o.id?'selected':''} ${state.answered && o.id===q.correctId?'correct':''} ${state.answered && state.selected===o.id && o.id!==q.correctId?'wrong':''}" data-action="answer-quiz" data-option="${o.id}">${escapeHtml(o.text)}</button>`).join('')}</div><div class="feedback">${state.answered?(state.selected===q.correctId?'Da! Ai ales foarte bine.':'Nu-i nimic, data viitoare va fi mai ușor.') : ''}</div><div class="player-actions"><span></span>${state.answered?`<button class="button button-primary" data-action="next-quiz">${state.index===activity.questions.length-1?'Vezi rezultatul':'Următoarea'} →</button>`:''}</div>`;
   }
-  function renderMatch(root,activity) { const state=activePlayer.state || (activePlayer.state={matched:[],selectedLeft:null,selectedRight:null}); if(state.matched.length===activity.pairs.length){root.innerHTML=`<div class="result"><strong>Bravo!</strong>Ai găsit toate perechile.</div><div class="player-actions"><button class="button button-soft" data-action="replay">Joacă din nou</button><button class="button button-primary" data-action="close">Înapoi</button></div>`;return;} const left=activity.pairs, right=clone(activity.pairs).sort(()=>Math.random()-.5); root.innerHTML=`<div class="player-progress">Găsite ${state.matched.length} din ${activity.pairs.length}</div><div class="pair-grid"><div class="pair-column">${left.map(p=>`<button class="pair-item ${state.matched.includes(p.id)?'matched':''} ${state.selectedLeft===p.id?'selected':''}" data-action="select-left" data-id="${p.id}" ${state.matched.includes(p.id)?'disabled':''}>${escapeHtml(p.left)}</button>`).join('')}</div><div class="pair-column">${right.map(p=>`<button class="pair-item ${state.matched.includes(p.id)?'matched':''} ${state.selectedRight===p.id?'selected':''}" data-action="select-right" data-id="${p.id}" ${state.matched.includes(p.id)?'disabled':''}>${escapeHtml(p.right)}</button>`).join('')}</div></div><div class="feedback">${state.feedback || 'Alege un element din fiecare coloană.'}</div>`; }
+  function renderMatch(root,activity) { const state=activePlayer.state || (activePlayer.state={matched:[],selectedLeft:null,selectedRight:null}); if(state.matched.length===activity.pairs.length){root.innerHTML=`<div class="result"><strong>Bravo!</strong>Ai găsit toate perechile.</div><div class="player-actions"><button class="button button-soft" data-action="replay">Joacă din nou</button><button class="button button-primary" data-action="close">Înapoi</button></div>`;return;} const left=activity.pairs, right=state.right || (state.right=shuffle(activity.pairs)); root.innerHTML=`<div class="player-progress">Găsite ${state.matched.length} din ${activity.pairs.length}</div><div class="pair-grid"><div class="pair-column">${left.map(p=>`<button class="pair-item ${state.matched.includes(p.id)?'matched':''} ${state.selectedLeft===p.id?'selected':''}" data-action="select-left" data-id="${p.id}" ${state.matched.includes(p.id)?'disabled':''}>${escapeHtml(p.left)}</button>`).join('')}</div><div class="pair-column">${right.map(p=>`<button class="pair-item ${state.matched.includes(p.id)?'matched':''} ${state.selectedRight===p.id?'selected':''}" data-action="select-right" data-id="${p.id}" ${state.matched.includes(p.id)?'disabled':''}>${escapeHtml(p.right)}</button>`).join('')}</div></div><div class="feedback">${state.feedback || 'Alege un element din fiecare coloană.'}</div>`; }
   function renderSort(root,activity) { const state=activePlayer.state || (activePlayer.state={index:0,score:0}); if(state.done){root.innerHTML=`<div class="result"><strong>${state.score}/${activity.items.length}</strong>Ai terminat sortarea.</div><div class="player-actions"><button class="button button-soft" data-action="replay">Joacă din nou</button><button class="button button-primary" data-action="close">Înapoi</button></div>`;return;} const item=activity.items[state.index]; root.innerHTML=`<div class="player-progress">Elementul ${state.index+1} din ${activity.items.length}</div><h3 class="player-question">Unde intră „${escapeHtml(item.text)}”?</h3><div class="category-zone">${activity.categories.map(c=>`<button class="category-name" data-action="answer-sort" data-category="${c.id}">${escapeHtml(c.name)}</button>`).join('')}</div><div class="feedback">${state.feedback || ''}</div>`; }
-  function renderOrder(root,activity) { const state=activePlayer.state || (activePlayer.state={items:clone(activity.items),done:false}); if(state.done){const correct=state.items.every((item,index)=>item.id===activity.items[index].id);root.innerHTML=`<div class="result"><strong>${correct?'Perfect!':'Aproape!'}</strong>${correct?'Ai așezat toate etapele corect.':'Ordinea poate fi îmbunătățită. Mai încearcă!'}</div><div class="player-actions"><button class="button button-soft" data-action="replay">Joacă din nou</button><button class="button button-primary" data-action="close">Înapoi</button></div>`;return;} root.innerHTML=`<div class="player-progress">Așază pașii, apoi verifică răspunsul.</div><div class="order-list">${state.items.map((item,index)=>`<div class="order-row"><span>${escapeHtml(item.text)}</span><button data-action="move-order" data-index="${index}" data-direction="up" aria-label="Mută în sus">↑</button><button data-action="move-order" data-index="${index}" data-direction="down" aria-label="Mută în jos">↓</button></div>`).join('')}</div><div class="feedback"></div><div class="player-actions"><span></span><button class="button button-primary" data-action="check-order">Verifică</button></div>`; }
-  function renderMemory(root,activity) { const state=activePlayer.state || (activePlayer.state={cards:clone(activity.pairs).flatMap(p=>[{id:p.id,side:'a',text:p.textA},{id:p.id,side:'b',text:p.textB}]).sort(()=>Math.random()-.5),flipped:[],matched:[],locked:false}); if(state.matched.length===activity.pairs.length){root.innerHTML=`<div class="result"><strong>Găsite toate!</strong>Ai o memorie grozavă.</div><div class="player-actions"><button class="button button-soft" data-action="replay">Joacă din nou</button><button class="button button-primary" data-action="close">Înapoi</button></div>`;return;} root.innerHTML=`<div class="player-progress">Găsite ${state.matched.length} din ${activity.pairs.length}</div><div class="memory-grid">${state.cards.map((card,index)=>`<button class="memory-card ${state.flipped.includes(index)||state.matched.includes(card.id)?'flipped':''} ${state.matched.includes(card.id)?'matched':''}" data-action="flip-memory" data-index="${index}" ${state.matched.includes(card.id)?'disabled':''}>${state.flipped.includes(index)||state.matched.includes(card.id)?escapeHtml(card.text):'?'}</button>`).join('')}</div><div class="feedback">${state.feedback || 'Întoarce două cartonașe.'}</div>`; }
+  function renderOrder(root,activity) { const state=activePlayer.state || (activePlayer.state={items:shuffledDifferent(activity.items),done:false}); if(state.done){const correct=state.items.every((item,index)=>item.id===activity.items[index].id);root.innerHTML=`<div class="result"><strong>${correct?'Perfect!':'Aproape!'}</strong>${correct?'Ai așezat toate etapele corect.':'Ordinea poate fi îmbunătățită. Mai încearcă!'}</div><div class="player-actions"><button class="button button-soft" data-action="replay">Joacă din nou</button><button class="button button-primary" data-action="close">Înapoi</button></div>`;return;} root.innerHTML=`<div class="player-progress">Așază pașii, apoi verifică răspunsul.</div><div class="order-list">${state.items.map((item,index)=>`<div class="order-row"><span>${escapeHtml(item.text)}</span><button data-action="move-order" data-index="${index}" data-direction="up" aria-label="Mută în sus">↑</button><button data-action="move-order" data-index="${index}" data-direction="down" aria-label="Mută în jos">↓</button></div>`).join('')}</div><div class="feedback"></div><div class="player-actions"><span></span><button class="button button-primary" data-action="check-order">Verifică</button></div>`; }
+  function renderMemory(root,activity) {
+    const mode=activity.memoryMode||'text';
+    const state=activePlayer.state || (activePlayer.state={cards:shuffle(activity.pairs.flatMap(p=>[{id:p.id,side:'a',text:p.textA,image:mode!=='text'?p.image:''},{id:p.id,side:'b',text:p.textB,image:mode==='images'?p.image:''}])),flipped:[],matched:[],locked:false,moves:0});
+    if(state.matched.length===activity.pairs.length){root.innerHTML='<div class="result"><strong>Găsite toate!</strong>'+state.moves+' încercări pentru '+activity.pairs.length+' perechi.</div><div class="player-actions"><button class="button button-primary" data-action="replay">Joacă din nou</button><button class="button button-soft" data-action="close">Înapoi</button></div>';return;}
+    root.innerHTML='<div class="player-progress">'+state.matched.length+' / '+activity.pairs.length+' perechi · '+state.moves+' încercări</div><div class="memory-grid '+(mode!=='text'?'has-images':'')+'">'+state.cards.map((card,index)=>{const visible=state.flipped.includes(index)||state.matched.includes(card.id),matched=state.matched.includes(card.id);return '<button class="memory-card '+(visible?'flipped ':'')+(matched?'matched':'')+'" data-action="flip-memory" data-index="'+index+'" aria-label="'+(visible?escapeHtml(card.text):'Cartonaș '+(index+1))+'" '+(matched?'disabled':'')+'>'+(visible?(imageMarkup(card.image,card.text)+'<span>'+escapeHtml(card.text)+'</span>'):'<span class="memory-back-mark" aria-hidden="true">✦</span>')+'</button>';}).join('')+'</div><div class="feedback" role="status">'+(state.feedback||'Întoarce două cartonașe.')+'</div>';
+  }
 
   async function handleAction(action,target) {
+    if(handleExtra(action,target,activePlayer,$('#player-content'))) return;
     if(action==='close') closeModal();
     if(action==='open-create') openEditor();
-    if(action==='template') openEditor(null,target.dataset.type);
+    if(action==='template') openEditor(seeds.find(a=>a.id===target.dataset.seedId)||null,target.dataset.type);
     if(action==='play-seed') openPlayer(seeds[0]);
     if(action==='play') { const item=allActivities().find(a=>a.id===target.dataset.id); if(item) openPlayer(item); }
     if(action==='edit') { const item=userActivities.find(a=>a.id===target.dataset.id); if(item) openEditor(item,item.type); }
@@ -192,9 +211,9 @@ await ready;
     if(action==='move-order') { const state=activePlayer.state; const index=Number(target.dataset.index), next=target.dataset.direction==='up'?index-1:index+1; if(next>=0&&next<state.items.length){[state.items[index],state.items[next]]=[state.items[next],state.items[index]];renderPlayer();} }
     if(action==='check-order') { activePlayer.state.done=true; renderPlayer(); }
     if(action==='flip-memory') flipMemory(Number(target.dataset.index));
-    if(action==='replay') { activePlayer.state=null; renderPlayer(); }
+    if(action==='replay') { openPlayer(activePlayer.activity); }
   }
-  function validationMessage(type) { if(type==='quiz') return 'Completează întrebările și marchează câte un răspuns corect pentru fiecare.'; if(type==='match'||type==='memory') return 'Ai nevoie de cel puțin două perechi completate.'; if(type==='sort') return 'Adaugă cel puțin două categorii și elemente cu o categorie validă.'; return 'Adaugă cel puțin doi pași cu text.'; }
+  function validationMessage(type) { if(Object.hasOwn(extraTypes,type)) return extraValidation(type); if(type==='memory') return 'Completează cel puțin două perechi și alege o imagine validă pentru fiecare pereche vizuală.'; if(type==='quiz') return 'Completează întrebările și marchează câte un răspuns corect pentru fiecare.'; if(type==='match'||type==='memory') return 'Ai nevoie de cel puțin două perechi completate.'; if(type==='sort') return 'Adaugă cel puțin două categorii și elemente cu o categorie validă.'; return 'Adaugă cel puțin doi pași cu text.'; }
   async function saveFromEditor(editingId) {
     if(savingActivity) return;
     const draft=readEditor(selectedType);
@@ -202,6 +221,7 @@ await ready;
     if(!validateActivity(draft)) return showValidation(validationMessage(selectedType));
     if(editingId && !userActivities.some(item=>item.id===editingId)) return showValidation('Materialul nu mai există în această listă. Redeschide editorul.');
     if(editingId) draft.id=editingId;
+    draft.updatedAt=Date.now();
     const next=editingId ? userActivities.map(item=>item.id===editingId?draft:item) : [draft,...userActivities];
     const button=$('[data-action="save-activity"]');
     savingActivity=true; button.disabled=true; button.textContent='Se salvează…';
@@ -215,13 +235,24 @@ await ready;
   function answerQuiz(option) { const state=activePlayer.state; if(state.answered) return; const q=activePlayer.activity.questions[state.index]; state.selected=option; state.answered=true; if(option===q.correctId) state.score++; renderPlayer(); }
   function resolveMatch() { const state=activePlayer.state; if(!state.selectedLeft||!state.selectedRight) { renderPlayer(); return; } if(state.selectedLeft===state.selectedRight){state.matched.push(state.selectedLeft);state.feedback='Pereche corectă!';}else state.feedback='Mai încearcă o dată.'; state.selectedLeft=null;state.selectedRight=null;renderPlayer(); }
   function answerSort(category) { const state=activePlayer.state,item=activePlayer.activity.items[state.index]; if(category===item.categoryId){state.score++;state.feedback='Corect!';state.index++;if(state.index>=activePlayer.activity.items.length)state.done=true;}else state.feedback='Nu se potrivește aici. Încearcă din nou.'; renderPlayer(); }
-  function flipMemory(index) { const state=activePlayer.state; if(state.locked||state.flipped.includes(index)||state.matched.includes(state.cards[index].id)) return; state.flipped.push(index); if(state.flipped.length===2){ state.locked=true; const [a,b]=state.flipped; if(state.cards[a].id===state.cards[b].id){state.matched.push(state.cards[a].id);state.feedback='Pereche găsită!';state.flipped=[];state.locked=false;renderPlayer();}else {state.feedback='Nu sunt pereche. Mai încearcă.';renderPlayer();setTimeout(()=>{state.flipped=[];state.locked=false;renderPlayer();},800);} } else renderPlayer(); }
+  function flipMemory(index) {
+    const player=activePlayer,state=player.state;
+    if(state.locked||!state.cards[index]||state.flipped.includes(index)||state.matched.includes(state.cards[index].id)) return;
+    state.flipped.push(index);
+    if(state.flipped.length===2){
+      state.moves++;state.locked=true;const [a,b]=state.flipped;
+      if(state.cards[a].id===state.cards[b].id){state.matched.push(state.cards[a].id);state.feedback='Pereche găsită!';state.flipped=[];state.locked=false;}
+      else {state.feedback='Nu sunt pereche. Mai încearcă.';setTimeout(()=>{if(activePlayer!==player||activePlayer.state!==state)return;state.flipped=[];state.locked=false;renderPlayer();},1000);}
+    }
+    renderPlayer();
+  }
 
   document.addEventListener('click', event => { const target=event.target.closest('[data-action]'); if(target) handleAction(target.dataset.action,target).catch(error=>toast(error.message || 'Operațiunea nu a reușit.')); });
   document.addEventListener('keydown', event => {
     const target=event.target.closest('[role="button"][data-action]');
     if(target && (event.key==='Enter'||event.key===' ')) { event.preventDefault(); target.click(); }
     if($('#modal-backdrop').hidden) return;
+    if(event.key==='Enter' && event.target.matches('[data-extra-answer]')) {event.preventDefault();$('#modal [data-action="ext-check"]')?.click();}
     if(event.key==='Escape') { event.preventDefault(); closeModal(); }
     if(event.key==='Tab') {
       const controls=$$('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href]', $('#modal')).filter(el => el.getClientRects().length);
@@ -230,11 +261,12 @@ await ready;
       else if(!event.shiftKey && document.activeElement===last) { event.preventDefault(); first?.focus(); }
     }
   });
-  document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{
+  $('.filter-group').addEventListener('click',event=>{
+    const button=event.target.closest('[data-filter]');if(!button)return;
     resourceFilter=button.dataset.filter;
     document.querySelectorAll('[data-filter]').forEach(b=>{b.classList.toggle('active', b===button);b.setAttribute('aria-pressed',String(b===button));});
     renderExamples();
-  }));
+  });
   $('#resource-search').addEventListener('input',event=>{resourceQuery=event.target.value;renderExamples();});
   $('#reset-filters').addEventListener('click',()=>{
     resourceQuery='';$('#resource-search').value='';

@@ -34,7 +34,11 @@
 .account-dialog .account-small { font-size:11px; margin:22px 0 0; }
 .account-dialog button:focus-visible,.account-trigger:focus-visible { outline:3px solid #8caf75; outline-offset:3px; }
 .children-view .account-header,.children-view .account-sync-notice { display:none; }
-/* The account menu doubles as the visual settings panel. */
+/* Sign-in and appearance are separate dialogs. */
+.settings-dialog .account-settings { margin:0; padding:0; border:0; background:none; }
+.settings-dialog #account-settings-title { font-size:27px; margin-right:25px; }
+.settings-dialog .settings-kicker { padding-top:12px; }
+.settings-dialog .appearance-block { margin-top:20px; }
 .account-settings { margin:24px 0 18px; padding:18px; border:1px solid var(--line,#e3e5d9); border-radius:20px; background:linear-gradient(145deg,color-mix(in srgb,var(--paper-deep,#eef2e7) 72%,var(--white)),var(--white)); }
 .settings-kicker { margin:0 0 5px !important; font-size:9px !important; letter-spacing:.14em; font-weight:800; color:var(--green,#66806b) !important; }
 .account-settings h3 { margin:0; font-size:16px; letter-spacing:-.03em; }

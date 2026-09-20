@@ -68,6 +68,27 @@ dialog.innerHTML = `<button class="account-close" data-account-action="close" ar
   <p class="account-small" id="account-footnote">Contul se creează la prima conectare. Copiii nu au nevoie de cont.</p>`;
 document.body.append(dialog);
 applyTranslations(dialog);
+const settingsDialog = document.createElement('dialog');
+settingsDialog.className = 'account-dialog settings-dialog'; settingsDialog.id = 'settings-dialog';
+settingsDialog.setAttribute('aria-labelledby','account-settings-title');
+settingsDialog.innerHTML = '<button type="button" class="account-close" data-settings-close aria-label="Închide">×</button>';
+settingsDialog.append(dialog.querySelector('.account-settings'));
+document.body.append(settingsDialog);
+applyTranslations(settingsDialog);
+export function openSettings() {
+  if(dialog.open) dialog.close();
+  applyTranslations(settingsDialog);
+  settingsDialog.showModal(); settingsDialog.scrollTop = 0;
+}
+settingsDialog.addEventListener('click', event => {
+  if(event.target.closest('[data-settings-close]')) { settingsDialog.close(); return; }
+  const mode = event.target.closest('[data-mode-option]');
+  if(mode) applyAppearance(mode.dataset.modeOption,document.documentElement.dataset.palette);
+  const palette = event.target.closest('[data-palette-option]');
+  if(palette) applyAppearance(document.documentElement.dataset.mode,palette.dataset.paletteOption);
+  const locale = event.target.closest('[data-language-option]');
+  if(locale) { setLanguage(locale.dataset.languageOption); location.reload(); }
+});
 
 const statusLabels = {loading:'Se încarcă…', guest:'Salvat în browser', synced:'Salvat în cont', saving:'Se salvează…', 'save-error':'Salvare nereușită', conflict:'Versiune nouă în cont', error:'Date indisponibile'};
 function feedback(text) { dialog.querySelector('#account-feedback').textContent = text; }
@@ -129,15 +150,9 @@ function renderAccount() {
 }
 workspace.subscribe(renderAccount);
 document.addEventListener('click', event => {
-  if (event.target.closest('[data-account-open]')) { renderAccount(); dialog.showModal(); }
+  if (event.target.closest('[data-account-open]')) { renderAccount(); dialog.showModal(); dialog.scrollTop = 0; }
 });
 dialog.addEventListener('click', async event => {
-  const modeButton = event.target.closest('[data-mode-option]');
-  if (modeButton) { applyAppearance(modeButton.dataset.modeOption, document.documentElement.dataset.palette || initialAppearance.palette); return; }
-  const paletteButton = event.target.closest('[data-palette-option]');
-  if (paletteButton) { applyAppearance(document.documentElement.dataset.mode || initialAppearance.mode, paletteButton.dataset.paletteOption); return; }
-  const languageButton = event.target.closest('[data-language-option]');
-  if (languageButton) { setLanguage(languageButton.dataset.languageOption); location.reload(); return; }
   const button = event.target.closest('[data-account-action]');
   if (!button || button.disabled) return;
   const action = button.dataset.accountAction;

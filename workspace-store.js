@@ -1,3 +1,4 @@
+import {extraTypes, validateExtra} from './activity-rules.js';
 export const guestKeys = Object.freeze({
   activities: 'activitati-interactive:v1',
   attendance: 'teacher.attendance.v1',
@@ -10,6 +11,7 @@ const uniqueIds = list => list.every(item => item && validId(item.id)) && new Se
 const text = value => typeof value === 'string' && value.trim().length > 0;
 function validActivity(a) {
   if(!a || !text(a.title)) return false;
+  if(Object.hasOwn(extraTypes,a.type)) return validateExtra(a);
   if(a.type === 'quiz') return Array.isArray(a.questions) && a.questions.length > 0 && a.questions.every(q =>
     q && text(q.prompt) && Array.isArray(q.options) && q.options.length >= 2 && uniqueIds(q.options) && q.options.every(o=>text(o.text)) && q.options.some(o=>o.id===q.correctId));
   if(a.type === 'match') return Array.isArray(a.pairs) && a.pairs.length >= 2 && uniqueIds(a.pairs) && a.pairs.every(p=>text(p.left)&&text(p.right));

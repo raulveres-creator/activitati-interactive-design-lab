@@ -1,5 +1,6 @@
 import {experienceCopy as copy} from './experience-copy.js';
-import {applyAppearance} from './account.js';
+import {applyAppearance,openSettings} from './account.js';
+import {t} from './i18n.js';
 
 const root = document.documentElement;
 const reduced = matchMedia('(prefers-reduced-motion:reduce)');
@@ -9,18 +10,21 @@ export const moving = () => !reduced.matches;
 
 const icons = {
   sound:'<path d="M11 4 6 8H3v8h3l5 4V4Z"/><path d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/>',
-  theme:'<path d="M20 15A8 8 0 0 1 9 4a8 8 0 1 0 11 11Z"/>'
+  theme:'<path d="M20 15A8 8 0 0 1 9 4a8 8 0 1 0 11 11Z"/>',
+  settings:'<path d="M4 7h6m4 0h6M4 17h10m4 0h2"/><circle cx="12" cy="7" r="2"/><circle cx="16" cy="17" r="2"/>'
 };
 const controls = document.getElementById('experience-controls');
-for (const kind of ['sound','theme']) {
+for (const kind of ['sound','theme','settings']) {
   const button = document.createElement('button');
   button.type = 'button'; button.className = 'experience-control'; button.id = `experience-${kind}`;
-  button.setAttribute('aria-label',copy[kind]); button.title = copy[kind];
+  const label = kind==='settings' ? t('Aspect și limbă') : copy[kind];
+  button.setAttribute('aria-label',label); button.title = label;
   button.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[kind]}</svg>`;
   controls.append(button);
 }
 const soundButton = document.getElementById('experience-sound');
 const themeButton = document.getElementById('experience-theme');
+document.getElementById('experience-settings').addEventListener('click',openSettings);
 soundButton.setAttribute('aria-pressed','false');
 function updateMotion() {
   root.dataset.motion = moving() ? 'on' : 'off';

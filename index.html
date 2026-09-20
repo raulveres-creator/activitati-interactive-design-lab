@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="studio-motion.css" />
   <link rel="stylesheet" href="cursor.css" />
   <link rel="stylesheet" href="experience.css" />
+  <link rel="stylesheet" href="activities.css" />
 </head>
 <body class="atelier neon-workspace">
   <div class="ambient-background" aria-hidden="true"><div class="ambient-wave wave-one"></div><div class="ambient-wave wave-two"></div><div class="ambient-orbit"></div><div class="ambient-stars"></div></div>
@@ -49,12 +50,9 @@
         <section class="discovery-stage" aria-labelledby="discovery-quiz-title">
           <div class="quiz-orbit" aria-hidden="true"></div>
           <div class="discovery-card" id="discovery-card">
-            <div class="discovery-card-top"><div><span class="discovery-tag" data-copy="badge">JOACĂ ȘI DESCOPERĂ</span><h2 id="discovery-quiz-title" data-copy="quiz">Animale sălbatice</h2></div><span class="discovery-counter" id="discovery-counter">01 / 03</span></div>
-            <p class="discovery-subtitle" data-copy="subtitle">Un mic exemplu. Curiozitate cât cuprinde.</p>
-            <progress class="discovery-progress" id="discovery-progress" max="3" value="0" aria-label="Progres"></progress>
-            <h3 id="discovery-question"></h3>
-            <div class="animal-grid" id="animal-grid" role="group" aria-labelledby="discovery-question"></div>
-            <div class="discovery-feedback"><p id="discovery-feedback" role="status" aria-live="polite"></p><button type="button" class="quiz-next" id="quiz-next" hidden></button></div>
+            <div class="discovery-card-top"><div><span class="discovery-tag">ÎNCEARCĂ O IDEE</span><h2 id="discovery-quiz-title">Mini-atelier</h2></div></div>
+            <p class="discovery-subtitle">Alege un joc, apoi creează propria variantă.</p>
+            <div id="mini-workshop"><p>Se pregătește atelierul…</p></div>
           </div>
         </section>
       </section>
@@ -67,7 +65,7 @@
       </section>
 
       <section class="format-section cyber-section" aria-labelledby="format-title">
-        <div class="section-heading"><h2 id="format-title">O activitate nouă începe cu un format</h2><span class="section-count">5 moduri de a învăța</span></div>
+        <div class="section-heading"><h2 id="format-title">O activitate nouă începe cu un format</h2><span class="section-count" id="format-count">10 formate de explorat</span></div>
         <div class="template-grid" id="template-grid"></div>
       </section>
 

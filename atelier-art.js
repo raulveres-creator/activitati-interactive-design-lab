@@ -43,7 +43,7 @@
     order:'<i class="holo-step step-one"></i><i class="holo-step step-two"></i><i class="holo-step step-three"></i>',
     memory:'<i class="holo-tile memory-back">'+icon('layers')+'</i><i class="holo-tile memory-front">'+icon('memory')+'</i>'
   };
-  const model = type => '<span class="format-stage" aria-hidden="true"><i class="format-ring"></i><span class="format-model model-'+type+'">'+(models[type]||models.quiz)+'</span></span>';
+  const model = type => '<span class="format-stage" aria-hidden="true"><i class="format-ring"></i><span class="format-model model-'+type+'">'+(models[type]||'<span class="model-symbol">'+({math:'±',truefalse:'✓ ×',blanks:'___',scramble:'Ab',wordsearch:'▦'}[type]||'?')+'</span>')+'</span></span>';
   const scene = type => '<span class="activity-cover cyber-cover cover-'+(Object.hasOwn(covers,type)?type:'quiz')+'" aria-hidden="true"></span>';
   window.atelierArt = {icon,model,scene,hero:studio};
 })();
