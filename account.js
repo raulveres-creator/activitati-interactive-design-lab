@@ -6,6 +6,13 @@ let client = null, bootError = '', busy = false, googleAvailable = false;
 const configured = Boolean(backendConfig.supabaseUrl && backendConfig.supabasePublishableKey);
 const storage = {getItem:key => localStorage.getItem(key), setItem:(key,value) => localStorage.setItem(key,value)};
 export const workspace = new WorkspaceStore({storage});
+export async function fileAccess() {
+  if(!client || !workspace.user)throw new Error('Intră în cont pentru a încărca sau descărca fișiere.');
+  const owner=workspace.user.id,epoch=workspace.epoch;
+  const {data,error}=await client.auth.getSession();
+  if(error || data.session?.user.id!==owner || workspace.epoch!==epoch)throw new Error('Sesiunea s-a schimbat. Intră din nou în cont.');
+  return {owner,epoch,headers:{apikey:backendConfig.supabasePublishableKey,Authorization:'Bearer '+data.session.access_token}};
+}
 const MODE_KEY = 'atelier.mode';
 const PALETTE_KEY = 'atelier.palette';
 const MODES = [
@@ -137,7 +144,7 @@ function renderAccount() {
   let counts = null;
   try { counts = workspace.guestCounts(); } catch { /* Import stays unavailable; original data is preserved. */ }
   dialog.querySelector('#account-import').hidden = !user || !counts || !Object.values(counts).some(Boolean);
-  if (counts) dialog.querySelector('#account-import-count').textContent = `${counts.activities} activități · ${counts.groups} grupe · ${counts.events} evenimente salvate în acest browser.`;
+  if (counts) dialog.querySelector('#account-import-count').textContent = `${counts.activities} activități · ${counts.groups} grupe · ${counts.events} evenimente · ${counts.assessments} evaluări · ${counts.materials} materiale salvate în acest browser.`;
   dialog.querySelectorAll('[data-account-action="logout"],[data-account-action="import"],[data-account-action="refresh"]').forEach(button => {
     button.disabled = busy || workspace.pending > 0 || workspace.status === 'loading';
   });

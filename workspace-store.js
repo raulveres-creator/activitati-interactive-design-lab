@@ -1,10 +1,13 @@
 import {extraTypes, validateExtra} from './activity-rules.js';
+import {documentFields,validAssessment,validMaterial,validLesson} from './teacher-records.js';
 export const guestKeys = Object.freeze({
   activities: 'activitati-interactive:v1',
   attendance: 'teacher.attendance.v1',
+  assessments: 'teacher.assessments.v1',
+  materials: 'teacher.materials.v1',
   calendars: 'teacher.calendars.v1',
 });
-const empty = kind => kind === 'activities' ? [] : {version:1, [kind === 'attendance' ? 'groups' : 'events']:[]};
+const empty = kind => kind === 'activities' ? [] : {version:1, [documentFields[kind]]:[]};
 const copy = value => structuredClone(value);
 const validId = value => typeof value === 'string' && value.length > 0 && value.length <= 200;
 const uniqueIds = list => list.every(item => item && validId(item.id)) && new Set(list.map(item => item.id)).size === list.length;
@@ -29,7 +32,9 @@ export function validDocument(kind, value) {
       /^\d{4}-\d{2}-\d{2}$/.test(day) && Array.isArray(ids) && ids.every(id => g.children.some(c => c.id === id))) &&
     (g.absent === undefined || (typeof g.absent === 'object' && !Array.isArray(g.absent) && Object.entries(g.absent).every(([day,ids]) =>
       /^\d{4}-\d{2}-\d{2}$/.test(day) && Array.isArray(ids) && ids.every(id => g.children.some(c => c.id === id))))));
-  if (kind === 'calendars') return value?.version === 1 && Array.isArray(value.events) && uniqueIds(value.events);
+  if (kind === 'assessments') return value?.version===1 && Array.isArray(value.entries) && uniqueIds(value.entries) && value.entries.every(validAssessment);
+  if (kind === 'materials') return value?.version===1 && Array.isArray(value.items) && uniqueIds(value.items) && value.items.every(validMaterial);
+  if (kind === 'calendars') return value?.version === 1 && Array.isArray(value.events) && uniqueIds(value.events) && value.events.every(e=>e.schema!==2 || validLesson(e));
   return false;
 }
 
@@ -63,7 +68,7 @@ export class WorkspaceStore {
     return value;
   }
   guestCounts() {
-    return {activities:this.guest('activities').length, groups:this.guest('attendance').groups.length, events:this.guest('calendars').events.length};
+    return {activities:this.guest('activities').length, groups:this.guest('attendance').groups.length, events:this.guest('calendars').events.length, assessments:this.guest('assessments').entries.length, materials:this.guest('materials').items.length};
   }
   async activate(user) {
     const epoch = ++this.epoch;
@@ -124,20 +129,28 @@ export class WorkspaceStore {
   async importGuest() {
     if (!this.user) throw new WorkspaceError('auth','Intră în cont înainte de import.');
     const epoch = this.epoch;
+    const groupIds=new Map(), materialIds=new Map();
     for (const kind of Object.keys(guestKeys)) {
       if (epoch !== this.epoch) throw new WorkspaceError('identity','Contul s-a schimbat.');
       const local = this.guest(kind), current = this.read(kind);
-      const field = kind === 'attendance' ? 'groups' : kind === 'calendars' ? 'events' : null;
+      const field = documentFields[kind] || null;
       const source = field ? local[field] : local, target = field ? current[field] : current;
       let changed = false;
-      for (const item of source) {
+      for (const sourceItem of source) {
+        const item=copy(sourceItem);
+        if(item.groupId) item.groupId=groupIds.get(item.groupId)||item.groupId;
+        if(Array.isArray(item.materialIds))item.materialIds=item.materialIds.map(id=>materialIds.get(id)||id);
         const existing = target.find(candidate => candidate.id === item.id);
+        let targetId=item.id;
         if (!existing) { target.push(copy(item)); changed = true; }
         else if (JSON.stringify(existing) !== JSON.stringify(item)) {
           // Stable duplicate IDs make retries after a partial import idempotent.
           const importedId = 'local-' + item.id;
+          targetId=importedId;
           if (!target.some(candidate => candidate.id === importedId)) { target.push({...copy(item),id:importedId}); changed = true; }
         }
+        if(kind==='attendance')groupIds.set(sourceItem.id,targetId);
+        if(kind==='materials')materialIds.set(sourceItem.id,targetId);
       }
       if (changed) await this.save(kind,current);
     }

@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="cursor.css" />
   <link rel="stylesheet" href="experience.css" />
   <link rel="stylesheet" href="activities.css" />
+  <link rel="stylesheet" href="teacher-tools.css" />
 </head>
 <body class="atelier neon-workspace">
   <div class="ambient-background" aria-hidden="true"><div class="ambient-wave wave-one"></div><div class="ambient-wave wave-two"></div><div class="ambient-orbit"></div><div class="ambient-stars"></div></div>
@@ -91,12 +92,12 @@
         <div id="library-list" class="library-list"></div>
       </section>
 
-      <section class="upcoming-section" id="spatiul-profesorului" aria-labelledby="upcoming-title">
-        <div class="section-heading"><div><p class="overline">ATELIERUL CREȘTE ALĂTURI DE NOI</p><h2 id="upcoming-title">În curând, mai mult loc pentru idei</h2></div><span class="planned-badge">În pregătire</span></div>
-        <div class="upcoming-grid">
-          <details><summary><span class="upcoming-icon" data-icon="calendar"></span><span>Calendarul clasei<small>Lecții și momente importante</small></span><span class="detail-plus" aria-hidden="true">+</span></summary><p>Aici vor putea fi organizate lecțiile, temele și evenimentele, împreună cu materialele pregătite pentru fiecare zi.</p></details>
-          <details><summary><span class="upcoming-icon" data-icon="diagram"></span><span>Diagrame și organigrame<small>Idei care prind formă</small></span><span class="detail-plus" aria-hidden="true">+</span></summary><p>Pregătim un editor pentru scheme, hărți de idei și organizarea proiectelor clasei.</p></details>
-          <details><summary><span class="upcoming-icon" data-icon="book"></span><span>Template-uri de lecții<small>Un început pentru fiecare temă</small></span><span class="detail-plus" aria-hidden="true">+</span></summary><p>Planuri de lecție și fișe reutilizabile, pe care să le adaptezi conținutului predat și ritmului clasei tale.</p></details>
+      <section class="teacher-tools-section" id="spatiul-profesorului" aria-labelledby="teacher-tools-heading">
+        <div class="section-heading"><div><p class="overline">FIECARE COPIL, FIECARE LECȚIE</p><h2 id="teacher-tools-heading">Organizează clasa, pas cu pas</h2></div></div>
+        <div class="teacher-tools-grid">
+          <article class="teacher-tool-card"><span class="teacher-tool-icon" data-icon="calendar" aria-hidden="true"></span><h3>Calendarul clasei</h3><p>Planifică lecțiile și momentele importante. Pune la îndemână materialele pentru fiecare zi.</p><small data-tool-summary="calendar">Lecții și evenimente</small><button type="button" class="button button-soft" data-open-tool="calendar">Deschide calendarul →</button></article>
+          <article class="teacher-tool-card"><span class="teacher-tool-icon" data-icon="people" aria-hidden="true"></span><h3>Calificative și progres</h3><p>Urmărește evaluările și observațiile pentru fiecare elev. Pregătește sprijinul de care are nevoie.</p><small data-tool-summary="grades">Aceiași elevi ca la prezență</small><button type="button" class="button button-soft" data-open-tool="grades">Deschide evidența →</button></article>
+          <article class="teacher-tool-card"><span class="teacher-tool-icon" data-icon="folder" aria-hidden="true"></span><h3>Materiale pentru lecții</h3><p>Adună fișe, prezentări, imagini și linkuri. Organizează-le pe materii, lecții și clase.</p><small data-tool-summary="materials">Resursele tale, într-un singur loc</small><button type="button" class="button button-soft" data-open-tool="materials">Deschide materialele →</button></article>
         </div>
       </section>
       <footer class="workspace-footer"><span>Fă loc curiozității.</span><span>Pentru învățători și profesori, cu grijă pentru copii.</span></footer>
@@ -109,5 +110,6 @@
   <script type="module" src="atelier.js"></script>
   <script type="module" src="cursor.js"></script>
   <script type="module" src="experience.js"></script>
+  <script type="module" src="teacher-tools.js"></script>
 </body>
 </html>
